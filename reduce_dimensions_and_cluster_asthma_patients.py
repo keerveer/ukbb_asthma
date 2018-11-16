@@ -12,7 +12,7 @@
 # 
 # 
 
-# In[2]:
+# In[7]:
 
 import pandas as pd 
 import numpy as np
@@ -40,25 +40,35 @@ from sklearn.cluster import KMeans
 # 
 # For summary statistics and finding the most correlated variables, we only selected 'QUANTITY' fields.  For dimensionality reduction for further clustering, it's not so clear whether we have to select only 'QUANTITY' fields.
 
-# In[3]:
+# In[8]:
 
 #Read in 5K sample
 #asthma_df=pd.read_csv("ukbb_asthma_sample_5k.csv",sep='\t')
-asthma_df=pd.read_csv("ukbb_asthma_sample_5k_new.csv",sep='\t')
+#asthma_df=pd.read_csv("ukbb_asthma_sample_5k_new.csv",sep='\t')
 
 
-# In[4]:
+# In[9]:
+
+asthma_df=pd.read_csv("ukbb_asthma_full_filtered.csv",sep='\t')
+
+
+# In[10]:
+
+asthma_df.columns
+
+
+# In[11]:
 
 # Select columns to filter on
 cols = [col for col in asthma_df.columns if 'HES_p' not in col and 'PC' not in col]
 
 
-# In[5]:
+# In[12]:
 
-asthma_df=asthma_df[cols].drop('Unnamed: 0',axis=1)
+#asthma_df=asthma_df[cols].drop('Unnamed: 0',axis=1)
 
 
-# In[6]:
+# In[13]:
 
 #select only 'QUANTITY' fields
 asthma_df_quant=asthma_df.loc[:, asthma_df.columns.str.contains('QUANT|age|BMI')].fillna(0.0)
@@ -69,15 +79,15 @@ for col in asthma_df_quant.columns:
 
         
 #select only 'QUANTITY' and "CATEGORY" fields
-asthma_df_quant_cat=asthma_df.loc[:, asthma_df.columns.str.contains('QUANT|age|BMI|CAT|sex')].fillna(0.0)
-asthma_df_quant_cat=asthma_df_quant_cat.drop(columns=['f_22182_0_0_f_CAT_HLA_imputation_values_and_quality'])
+#asthma_df_quant_cat=asthma_df.loc[:, asthma_df.columns.str.contains('QUANT|age|BMI|CAT|sex')].fillna(0.0)
+#asthma_df_quant_cat=asthma_df_quant_cat.drop(columns=['f_22182_0_0_f_CAT_HLA_imputation_values_and_quality'])
 #selects all features. 
 
-asthma_df_all=asthma_df.loc[:,~asthma_df.columns.str.contains('ID|random|chip|asthma')].fillna(0.0)
-asthma_df_all=asthma_df_all.drop(columns=['f_22182_0_0_f_CAT_HLA_imputation_values_and_quality'])
+#asthma_df_all=asthma_df.loc[:,~asthma_df.columns.str.contains('ID|random|chip|asthma')].fillna(0.0)
+#asthma_df_all=asthma_df_all.drop(columns=['f_22182_0_0_f_CAT_HLA_imputation_values_and_quality'])
 
 
-# In[7]:
+# In[14]:
 
 asthma_df_quant.shape
 
@@ -102,19 +112,19 @@ asthma_df_quant.shape
 # Before dimensionality reduction and further clustering with kMeans, data has to be scaled. The standard scaler scales the data to an average value of 0 and a unit variance of 1. This is appropriate for the 'QUANTITY' features. We can't use the standard scaler for the other features, so we do 'min/max' scaling, which scales the data in the range from 0 to 1.
 # 
 
-# In[8]:
+# In[15]:
 
 #Scale the quantity features only
 data_quant=StandardScaler().fit_transform(asthma_df_quant.values)
 #Scale the quantity AND CATEGORY features
-data_quant_cat=StandardScaler().fit_transform(asthma_df_quant_cat.applymap(lambda x: float(x)).values)
+#data_quant_cat=StandardScaler().fit_transform(asthma_df_quant_cat.applymap(lambda x: float(x)).values)
 #Scale ALL THE features
-data_all=StandardScaler().fit_transform(asthma_df_all.applymap(lambda x:float(x)).values)
+#data_all=StandardScaler().fit_transform(asthma_df_all.applymap(lambda x:float(x)).values)
 
 
 # ## PCA 
 
-# In[9]:
+# In[16]:
 
 pca_2d = decomposition.PCA(n_components=2)
 pca_quant_2d=pca_2d.fit_transform(data_quant)
@@ -132,7 +142,7 @@ plt.show()
 # It's easier to talk about in person, but the best way to determine the optimal number of principal components is to plot the 'cummulative eigenvalue fraction' vs the number of eigenvalues. The code to do this is below. The example code is for 500 principal components - this is way too many. I'll explain why below:
 # 
 
-# In[10]:
+# In[17]:
 
 # PCA for 500 components
 pca_500d = decomposition.PCA(n_components=500)
@@ -158,7 +168,7 @@ plt.show()
 # 
 # This is not as hard as it looks. You can reduce the number of principal components in the above plot (to say 150 or so) and pick out the optimal number of components by eye. 
 
-# In[11]:
+# In[18]:
 
 # PCA for 300 components
 
@@ -177,7 +187,7 @@ plt.title('QUANTITY FEATURES ONLY 300 principal components')
 plt.show()
 
 
-# In[12]:
+# In[19]:
 
 pca_55d = decomposition.PCA(n_components=55)
 pca_quant_55d=pca_55d.fit_transform(data_quant)
@@ -194,7 +204,7 @@ plt.show()
 # 
 # This part is straightforward. You will have to run the same code below and replace the number of dimensions with the optimal number of principal components you found above. You will have to do so again for all three data frames
 
-# In[13]:
+# In[20]:
 
 '''tsne_2d = manifold.TSNE(n_components=2, init='pca', random_state=0, perplexity=20,
                      learning_rate=300, n_iter=400)
@@ -210,7 +220,7 @@ plt.show()
 '''
 
 
-# In[14]:
+# In[21]:
 
 """tsne_2d = manifold.TSNE(n_components=2, init='pca', random_state=0, perplexity=20,
                      learning_rate=300, n_iter=400)
@@ -246,7 +256,7 @@ plt.show()
 # 
 # Repeat the above steps, but with 55 principal components. You can't visualize 55 dimensions of course, so just plot the first two principal components of the 55. 
 
-# In[15]:
+# In[22]:
 
 X = pca_quant_55d
 kmeans = KMeans(n_clusters=2, n_init=15, max_iter=400).fit(X)
@@ -255,12 +265,12 @@ y_pred = kmeans.predict(X)
 plt.scatter(X[:,0], X[:,1], c=y_pred)
 
 
-# In[16]:
+# In[23]:
 
 len(y_pred)
 
 
-# In[17]:
+# In[24]:
 
 X = pca_quant_55d
 kmeans = KMeans(n_clusters=2, n_init=15, max_iter=400)
@@ -294,12 +304,12 @@ plt.show()
 
 # # Step 5 - find which features contribute the most to PCA. 
 
-# In[18]:
+# In[25]:
 
 ## which variables change the data the most/ have the highest variance 
 
 
-# In[19]:
+# In[26]:
 
 import seaborn as sns
 plt.rcParams['figure.figsize']=(12,6)
@@ -310,30 +320,30 @@ plt.xlabel('Quantitative Feature index')
 plt.show()
 
 
-# In[20]:
+# In[27]:
 
 ## pale colors are most important 
 
 
 # ### The above plot shows a heat map of feature importances. Because we have over 600 quantitative features, I only show 100. There are 55 principal components. The more yellow the heatmap is, the more important the feature is. Let's average over the principal components to get the most important features
 
-# In[21]:
+# In[28]:
 
 log_importances=np.log(pca_55d.inverse_transform(np.eye(pca_quant_55d.shape[1])))
 
 
-# In[22]:
+# In[29]:
 
 mean_log_importances=np.apply_along_axis(np.mean,0,np.nan_to_num(log_importances))
 print(len(mean_log_importances))
 
 
-# In[23]:
+# In[30]:
 
 mean_log_importances_df=pd.DataFrame(data=mean_log_importances,columns=['importance'])
 
 
-# In[24]:
+# In[31]:
 
 mean_log_importances_df=mean_log_importances_df.reset_index()
 print(mean_log_importances_df.head(15))
@@ -341,19 +351,19 @@ print(mean_log_importances_df.head(15))
 
 # ### The numpy array above is an array of importances, of length 638. They map back to the original data frame:
 
-# In[25]:
+# In[32]:
 
 print(asthma_df_quant.columns[0],asthma_df_quant.columns[637])
 
 
-# In[26]:
+# In[33]:
 
 ## every entry in array, can get variabe name 
 
 
 # # Find the ten most important features to start, including their names, to focus on. 
 
-# In[27]:
+# In[34]:
 
 ## labels 0-638: have value associated. 
 ## output array as csv file -- find 10 highest values in the array and associated array index number 
@@ -361,7 +371,7 @@ print(asthma_df_quant.columns[0],asthma_df_quant.columns[637])
 np.savetxt("Asthma Important Features.csv", mean_log_importances_df, delimiter=",")
 
 
-# In[28]:
+# In[35]:
 
 asthma_df_important_features = mean_log_importances_df.sort_values(by="importance", ascending=False)
 print(asthma_df_important_features.head(15))
@@ -369,108 +379,108 @@ print(asthma_df_important_features.head(15))
 
 # # Step 6: ANOVA of the ten most important features between the two clusters
 
-# In[29]:
+# In[36]:
 
 # Add the group label to the data frame:
 asthma_df_quant['Cluster Label']=y_pred
 asthma_df_quant['Cluster Label']=asthma_df_quant['Cluster Label'].apply(str).apply(lambda x: x.replace('0','A')).apply(lambda x: x.replace('1','B'))
 
 
-# In[30]:
+# In[37]:
 
 asthma_df_quant.shape
 
 
 # ### adding the cluster labels allows you to visualize box plots broken down by cluster easily. For example, for age:
 
-# In[31]:
+# In[38]:
 
 ## include box plots for top 10 variables 
 
 
-# In[32]:
+# In[39]:
 
 asthma_df_quant.boxplot(asthma_df_quant.columns[0],by='Cluster Label')
 
 
-# In[33]:
+# In[40]:
 
 v = asthma_df_important_features['index'].values[0]
 
 
-# In[34]:
-
-asthma_df_quant.boxplot(asthma_df_quant.columns[v],by='Cluster Label')
-
-
-# In[35]:
-
-asthma_df_quant.boxplot(asthma_df_quant.columns[237],by='Cluster Label')
-
-
-# In[36]:
-
-asthma_df_quant.boxplot(asthma_df_quant.columns[632],by='Cluster Label')
-
-
-# In[37]:
-
-asthma_df_quant.boxplot(asthma_df_quant.columns[332],by='Cluster Label')
-
-
-# In[38]:
-
-asthma_df_quant.boxplot(asthma_df_quant.columns[413],by='Cluster Label')
-
-
-# In[39]:
-
-asthma_df_quant.boxplot(asthma_df_quant.columns[549],by='Cluster Label')
-
-
-# In[40]:
-
-asthma_df_quant.boxplot(asthma_df_quant.columns[524],by='Cluster Label')
-
-
 # In[41]:
 
-asthma_df_quant.boxplot(asthma_df_quant.columns[621],by='Cluster Label')
+asthma_df_quant.boxplot(asthma_df_quant.columns[449],by='Cluster Label')
 
 
 # In[42]:
 
-asthma_df_quant.boxplot(asthma_df_quant.columns[380],by='Cluster Label')
+asthma_df_quant.boxplot(asthma_df_quant.columns[584],by='Cluster Label')
 
 
 # In[43]:
 
-asthma_df_quant.boxplot(asthma_df_quant.columns[590],by='Cluster Label')
+asthma_df_quant.boxplot(asthma_df_quant.columns[659],by='Cluster Label')
 
 
 # In[44]:
 
-asthma_df_quant.boxplot(asthma_df_quant.columns[238],by='Cluster Label')
+asthma_df_quant.boxplot(asthma_df_quant.columns[617],by='Cluster Label')
 
 
 # In[45]:
 
-asthma_df_quant.boxplot(asthma_df_quant.columns[554],by='Cluster Label')
+asthma_df_quant.boxplot(asthma_df_quant.columns[453],by='Cluster Label')
 
 
 # In[46]:
 
-asthma_df_quant.boxplot(asthma_df_quant.columns[544],by='Cluster Label')
+asthma_df_quant.boxplot(asthma_df_quant.columns[357],by='Cluster Label')
 
 
 # In[47]:
 
-asthma_df_quant.boxplot(asthma_df_quant.columns[214],by='Cluster Label')
+asthma_df_quant.boxplot(asthma_df_quant.columns[10],by='Cluster Label')
 
 
 # In[48]:
 
-asthma_df_quant.boxplot(asthma_df_quant.columns[24],by='Cluster Label')
+asthma_df_quant.boxplot(asthma_df_quant.columns[597],by='Cluster Label')
+
+
+# In[49]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[411],by='Cluster Label')
+
+
+# In[50]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[612],by='Cluster Label')
+
+
+# In[51]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[109],by='Cluster Label')
+
+
+# In[52]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[605],by='Cluster Label')
+
+
+# In[53]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[56],by='Cluster Label')
+
+
+# In[54]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[603],by='Cluster Label')
+
+
+# In[55]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[60],by='Cluster Label')
 
 
 # ### which means the Data is not clustering by age. 
@@ -488,23 +498,23 @@ asthma_df_quant.boxplot(asthma_df_quant.columns[24],by='Cluster Label')
 # ## do each variable separately - 15 different ANOVA's
 # ## lower the better p-value. we define the cutoff ( < 0.05)
 
-# In[49]:
+# In[59]:
 
 asthma_df_quant_group1 = asthma_df_quant[asthma_df_quant['Cluster Label'].str.contains('A')]
 
 asthma_df_quant_group2 = asthma_df_quant[asthma_df_quant['Cluster Label'].str.contains('B')]
 
 
-# In[50]:
+# In[60]:
 
 [asthma_df_quant.columns[381]]
 
 
-# In[51]:
+# In[61]:
 
 import scipy.stats as stats
 
-feature = asthma_df_quant.columns[381]
+feature = asthma_df_quant.columns[449]
 (statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
     
 print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
@@ -513,88 +523,17 @@ print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
    
 
 
-# In[52]:
-
-feature = asthma_df_quant.columns[237]
-(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
-    
-print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
-
-
-# In[53]:
-
-feature = asthma_df_quant.columns[632]
-(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
-    
-print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
-
-
-# In[54]:
-
-feature = asthma_df_quant.columns[332]
-(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
-    
-print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
-
-
-# In[55]:
-
-[asthma_df_quant.columns[413]]
-
-
-# In[56]:
-
-feature = asthma_df_quant.columns[413]
-(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
-    
-print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
-
-
-# In[57]:
-
-feature = asthma_df_quant.columns[549]
-(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
-    
-print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
-
-
-# In[58]:
-
-feature = asthma_df_quant.columns[524]
-(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
-    
-print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
-
-
-# In[59]:
-
-feature = asthma_df_quant.columns[621]
-(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
-    
-print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
-
-
-# In[60]:
-
-[asthma_df_quant.columns[380]]
-
-
-# In[61]:
-
-feature = asthma_df_quant.columns[380]
-(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
-    
-print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
-
-
 # In[62]:
 
-[asthma_df_quant.columns[590]]
+feature = asthma_df_quant.columns[584]
+(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
+    
+print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
 
 
 # In[63]:
 
-feature = asthma_df_quant.columns[590]
+feature = asthma_df_quant.columns[659]
 (statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
     
 print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
@@ -602,7 +541,7 @@ print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
 
 # In[64]:
 
-feature = asthma_df_quant.columns[238]
+feature = asthma_df_quant.columns[617]
 (statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
     
 print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
@@ -610,15 +549,12 @@ print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
 
 # In[65]:
 
-feature = asthma_df_quant.columns[554]
-(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
-    
-print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
+[asthma_df_quant.columns[453]]
 
 
 # In[66]:
 
-feature = asthma_df_quant.columns[544]
+feature = asthma_df_quant.columns[453]
 (statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
     
 print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
@@ -626,7 +562,7 @@ print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
 
 # In[67]:
 
-feature = asthma_df_quant.columns[214]
+feature = asthma_df_quant.columns[357]
 (statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
     
 print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
@@ -634,7 +570,7 @@ print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
 
 # In[68]:
 
-feature = asthma_df_quant.columns[24]
+feature = asthma_df_quant.columns[10]
 (statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
     
 print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
@@ -642,32 +578,84 @@ print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
 
 # In[69]:
 
-asthma_df.columns
+feature = asthma_df_quant.columns[597]
+(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
+    
+print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
 
 
 # In[70]:
 
-asthma_df_2=pd.read_csv("ukbb_asthma_sample_5k_new.csv",sep='\t')
+[asthma_df_quant.columns[411]]
 
 
 # In[71]:
 
-for x in asthma_df_2.columns :
-    if 'asthma' in x:
-        print x
+feature = asthma_df_quant.columns[411]
+(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
+    
+print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
 
 
 # In[72]:
 
-asthma_df_2['f_22127_0_0_f_BIN_Doctor_diagnosed_asthma'].value_counts()
+[asthma_df_quant.columns[612]]
 
 
 # In[73]:
 
-print('hello')
+feature = asthma_df_quant.columns[612]
+(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
+    
+print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
 
 
-# In[81]:
+# In[74]:
+
+feature = asthma_df_quant.columns[109]
+(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
+    
+print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
+
+
+# In[75]:
+
+feature = asthma_df_quant.columns[605]
+(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
+    
+print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
+
+
+# In[76]:
+
+feature = asthma_df_quant.columns[56]
+(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
+    
+print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
+
+
+# In[77]:
+
+feature = asthma_df_quant.columns[603]
+(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
+    
+print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
+
+
+# In[78]:
+
+feature = asthma_df_quant.columns[60]
+(statistic, pvalue) = stats.f_oneway(asthma_df_quant_group1[feature].values, asthma_df_quant_group2[feature].values)
+    
+print("ANOVA Statistic " + str(statistic) + " and p-value " + str(pvalue))
+
+
+# In[79]:
+
+asthma_df.columns
+
+
+# In[80]:
 
 p_values=[]
 features=list(asthma_df_quant_group1.columns.values[:-1])
@@ -681,31 +669,287 @@ anova_dict['pvalue']=p_values
 anova_df=pd.DataFrame.from_dict(anova_dict)
 
 
-# In[105]:
+# In[81]:
 
 anova_df=anova_df.sort_values(by='pvalue')
-threshold=0.05
+threshold=0.01
 anova_df_significant=anova_df.loc[(anova_df.pvalue < threshold) & (anova_df.pvalue > 0)].sort_values(by='pvalue')
 
 
-# In[115]:
+# In[82]:
 
 anova_df_significant.tail(50)
 
 
-# In[119]:
+# In[83]:
 
 anova_df_significant[anova_df_significant['feature'].str.contains('FEV|FVC')].shape
 
 
-# In[117]:
+# In[84]:
+
+anova_df_significant.shape
+
+
+# In[85]:
 
 asthma_df_quant.boxplot(asthma_df_quant.columns[601],by='Cluster Label')
 
 
-# In[120]:
+# In[86]:
 
 asthma_df_quant.boxplot(asthma_df_quant.columns[270],by='Cluster Label')
+
+
+# In[87]:
+
+print('hello')
+
+
+# ## Features that are lung function-specific
+
+# In[88]:
+
+anova_df_lung=anova_df_significant[anova_df_significant['feature'].str.contains('FEV|FVC|cough|smok|asthma|tobacco|bronc|Lung|lung|PEF')]
+
+
+# In[89]:
+
+anova_df_lung.shape
+
+
+# In[ ]:
+
+
+
+
+# In[90]:
+
+anova_df_lung.head(20)
+
+
+# In[91]:
+
+asthma_df_important_features_lung=asthma_df_important_features[asthma_df_important_features['index'].isin(anova_df_lung.index)]
+
+
+# In[92]:
+
+asthma_df_important_features_lung.head(10)
+
+
+# In[93]:
+
+asthma_df_important_features_lung.shape
+
+
+# In[94]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[358],by='Cluster Label')
+
+
+# In[95]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[652],by='Cluster Label')
+
+
+# In[96]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[470],by='Cluster Label')
+
+
+# In[97]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[92],by='Cluster Label')
+
+
+# In[98]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[654],by='Cluster Label')
+
+
+# ## Features that are blood specific
+
+# In[99]:
+
+anova_df_blood=anova_df_significant[anova_df_significant['feature'].str.contains('LV|cardiac|Neutrophil|blood|Basophil|Platelet|Pulse|Heart|Cardiac|monocyte|heart|Reticulocyte')]
+
+
+# In[100]:
+
+anova_df_blood.shape
+
+
+# In[101]:
+
+anova_df_blood
+
+
+# In[102]:
+
+asthma_df_important_features_blood=asthma_df_important_features[asthma_df_important_features['index'].isin(anova_df_blood.index)]
+
+
+# In[103]:
+
+asthma_df_important_features_blood.head(10)
+
+
+# In[104]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[604],by='Cluster Label')
+
+
+# In[105]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[605],by='Cluster Label')
+
+
+# In[106]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[621],by='Cluster Label')
+
+
+# In[107]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[612],by='Cluster Label')
+
+
+# In[108]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[483],by='Cluster Label')
+
+
+# ## Other features that are present in healthy patients
+
+# In[109]:
+
+anova_df_healthy=anova_df_significant[anova_df_significant['feature'].str.contains('fat|bone|mass|grip|adipose|thigh|Waist|BMI|Hip|Ankle|Corneal|ocular')]
+
+
+# In[110]:
+
+anova_df_healthy.shape
+
+
+# In[111]:
+
+anova_df_healthy.head(20)
+
+
+# In[112]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[538],by='Cluster Label')
+
+
+# In[113]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[559],by='Cluster Label')
+
+
+# In[114]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[546],by='Cluster Label')
+
+
+# In[115]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[555],by='Cluster Label')
+
+
+# In[116]:
+
+asthma_df_quant.boxplot(asthma_df_quant.columns[585],by='Cluster Label')
+
+
+# ## Other features that may be specific to asthma
+
+# In[117]:
+
+anova_df_other=anova_df_significant[~anova_df_significant['feature'].str.contains('fat|bone|mass|grip|adipose|thigh|Waist|BMI|Hip|Ankle|Corneal|ocular|LV|cardiac|Neutrophil|blood|Basophil|Platelet|Pulse|Heart|Cardiac|monocyte|heart|Reticulocyte|FEV|FVC|cough|smok|asthma|tobacco|bronc|Lung|lung|PEF')]
+
+
+# In[118]:
+
+anova_df_other.shape
+
+
+# In[119]:
+
+anova_df_other.head(10)
+
+
+# In[120]:
+
+asthma_df_important_features_other=asthma_df_important_features[asthma_df_important_features['index'].isin(anova_df_other.index)]
+
+
+# In[121]:
+
+asthma_df_important_features_other.head(10)
+
+
+# ## Step 7: Write out Asthma Group Labels for different cohorts 
+
+# In[138]:
+
+cohort_labels_df=pd.get_dummies(asthma_df_quant['Cluster Label']).rename(columns={'A':'Asthma_CohortA','B':'Asthma_CohortB'})
+cohort_labels_df['Asthma_CohortAnotB']=cohort_labels_df['Asthma_CohortA'] 
+
+
+# In[139]:
+
+cohort_labels_df.head()
+
+
+# In[152]:
+
+asthma_df_full_gwas=pd.read_csv('ukbb_asthma_full.csv',sep='\t',usecols=['IID','PC1','PC2','PC3','PC4','PC5','PC6','PC7',
+                                                           'PC8','PC9','PC10','sex','age'])
+
+
+# In[153]:
+
+asthma_df_full_gwas.head()
+
+
+# In[154]:
+
+cohort_labels_df.head()
+
+
+# In[172]:
+
+asthma_df_full_gwas=asthma_df_full_gwas.join(cohort_labels_df)
+asthma_df_full_gwas.to_csv('ukbb_asthma_cohort_annotation.csv')
+
+
+# In[165]:
+
+asthma_df_full_not_asthma=pd.read_csv('ukbb_not_asthma_full_gwas.csv',sep='\t').drop(columns=['Unnamed: 0'])
+
+
+# In[168]:
+
+asthma_df_full_not_asthma['Asthma_CohortA']=0
+asthma_df_full_not_asthma['Asthma_CohortB']=0
+asthma_df_full_not_asthma['Asthma_CohortAnotB']=np.NaN
+
+
+# In[193]:
+
+ukbb_df_full_gwas=pd.concat([asthma_df_full_gwas,asthma_df_full_not_asthma]).reset_index().drop(columns='index')
+
+
+# In[194]:
+
+ukbb_df_full_gwas=ukbb_df_full_gwas[['IID','PC1','PC2','PC3','PC4','PC5','PC6','PC7',
+'PC8','PC9','PC10','sex','age','Asthma_CohortA','Asthma_CohortB','Asthma_CohortAnotB']]
+
+
+# In[196]:
+
+ukbb_df_full_gwas.to_csv('ukbb_asthma_cohorts_gwas_annotation.csv',index=False)
 
 
 # In[ ]:
