@@ -1,0 +1,4 @@
+Phenotype	Covariates	Description	Analysis_Id	Unit
+Asthma_CohortA	PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10	PCA based asthma clustering definition Asthma_CohortA vs. controls by K Veeravalli and S Grullon called  (minimal covariates) on UK Biobank European unrelated subjects (V3 case/control) 	GSK500KV3_AsthmaClusterA	na
+Asthma_CohortB	PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10	PCA based asthma clustering definition Asthma_CohortB vs. controls by K Veeravalli and S Grullon called  (minimal covariates) on UK Biobank European unrelated subjects (V3 case/control) 	GSK500KV3_AsthmaClusterB	na
+Asthma_CohortAnotB	PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10	PCA based asthma clustering definition Asthma_CohortAnotB by K Veeravalli and S Grullon called  (minimal covariates) on UK Biobank European unrelated subjects (V3 case/control)	GSK500KV3_AsthmaClusterAvsB	na

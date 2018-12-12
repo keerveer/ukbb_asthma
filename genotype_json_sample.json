@@ -1,0 +1,35 @@
+{
+  "run_details": {
+    "method": "Logistic Regression",
+    "source": "UK BioBank 500K",
+	"overlapping_analysis": "False",
+    "genotype_input_variable": "Hard Calls",
+    "recalculate_gt_stats":"False"
+  },
+  "algorithm": {
+    "algorithm_list": "wald"
+  },
+  "filters": {
+    "min_af": "0",
+    "max_af": "1",
+    "min_ac": "0",
+    "max_ac": "99999999",
+    "min_callrate": "0",
+    "regions": "all"
+  },
+  "paths": {
+    "mt_path": "/data/unstructured/integrated/gene_e/ukbiobank/500k_v3/output/gwas_ready_mt_500k_v3_updated_11_12_2018.mt",
+    "trait_annotations_path": "/data/unstructured/integrated/gene_e/ukbiobank/exome/50k_exome/analysis-files/UKB9888.ALL.20180611.txt"
+  },
+  "file_info": {
+    "trait_file_delimiter": "\t",
+    "trait_file_sample_id": "FID"
+  },
+  "output": {
+    "output_db_name": "hail",
+    "results_db": "gene_gwas"
+  },
+  "user_info": {
+    "email": "jatin.x.sandhuria@gsk.com"
+  }
+}
